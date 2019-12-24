@@ -3,7 +3,7 @@ package com.zeze.spark.sql.datasource
 import org.apache.spark.sql.types.StructType
 
 /**
-  * Created by rana on 30/9/16.
+  * Created by: chenzz on 2019/12/24, 16:05.
   */
 case class CustomFilter(attr : String, value : Any, filter : String)
 

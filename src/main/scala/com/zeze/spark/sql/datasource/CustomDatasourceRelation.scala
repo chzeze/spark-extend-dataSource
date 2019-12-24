@@ -6,7 +6,7 @@ import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 
 /**
- * Created by rana on 29/9/16.
+ * Created by: chenzz on 2019/12/24, 16:05.
  */
 class CustomDatasourceRelation(override val sqlContext: SQLContext, path: String, userSchema: StructType)
   extends BaseRelation with TableScan with PrunedScan with PrunedFilteredScan with Serializable {
