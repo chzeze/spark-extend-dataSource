@@ -1,15 +1,14 @@
-package cn.zeze.spark.sql.datasource
+package com.zeze.spark.sql.datasource
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 
-
 /**
-  * Created by rana on 29/9/16.
-  */
-class CustomDatasourceRelation(override val sqlContext : SQLContext, path : String, userSchema : StructType)
+ * Created by rana on 29/9/16.
+ */
+class CustomDatasourceRelation(override val sqlContext: SQLContext, path: String, userSchema: StructType)
   extends BaseRelation with TableScan with PrunedScan with PrunedFilteredScan with Serializable {
 
   override def schema: StructType = {
@@ -17,11 +16,11 @@ class CustomDatasourceRelation(override val sqlContext : SQLContext, path : Stri
       userSchema
     } else {
       StructType(
-        StructField("id", IntegerType, false) ::
-        StructField("name", StringType, true) ::
-        StructField("gender", StringType, true) ::
-        StructField("salary", LongType, true) ::
-        StructField("expense", LongType, true) :: Nil
+        StructField("id", LongType, false) ::
+          StructField("name", StringType, true) ::
+          StructField("gender", StringType, true) ::
+          StructField("salary", LongType, true) ::
+          StructField("expenses", LongType, true) :: Nil
       )
     }
   }
@@ -36,10 +35,12 @@ class CustomDatasourceRelation(override val sqlContext : SQLContext, path : Stri
     val rows = rdd.map(fileContent => {
       val lines = fileContent.split("\n")
       val data = lines.map(line => line.split(",").map(word => word.trim).toSeq)
-      val tmp = data.map(words => words.zipWithIndex.map{
+      val tmp = data.map(words => words.zipWithIndex.map {
         case (value, index) =>
           val colName = schemaFields(index).name
-          Util.castTo(if (colName.equalsIgnoreCase("gender")) {if(value.toInt == 1) "Male" else "Female"} else value,
+          Util.castTo(if (colName.equalsIgnoreCase("gender")) {
+            if (value.toInt == 1) "Male" else "Female"
+          } else value,
             schemaFields(index).dataType)
       })
 
@@ -59,11 +60,13 @@ class CustomDatasourceRelation(override val sqlContext : SQLContext, path : Stri
     val rows = rdd.map(fileContent => {
       val lines = fileContent.split("\n")
       val data = lines.map(line => line.split(",").map(word => word.trim).toSeq)
-      val tmp = data.map(words => words.zipWithIndex.map{
+      val tmp = data.map(words => words.zipWithIndex.map {
         case (value, index) =>
           val colName = schemaFields(index).name
-          val castedValue = Util.castTo(if (colName.equalsIgnoreCase("gender")) {if(value.toInt == 1) "Male" else "Female"} else value,
-                                        schemaFields(index).dataType)
+          val castedValue = Util.castTo(if (colName.equalsIgnoreCase("gender")) {
+            if (value.toInt == 1) "Male" else "Female"
+          } else value,
+            schemaFields(index).dataType)
           if (requiredColumns.contains(colName)) Some(castedValue) else None
       })
 
@@ -80,21 +83,21 @@ class CustomDatasourceRelation(override val sqlContext : SQLContext, path : Stri
     filters.foreach(f => println(f.toString))
 
     var customFilters: Map[String, List[CustomFilter]] = Map[String, List[CustomFilter]]()
-    filters.foreach( f => f match {
+    filters.foreach(f => f match {
       case EqualTo(attr, value) =>
         println("EqualTo filter is used!!" + "Attribute: " + attr + " Value: " + value)
 
         /**
-          * as we are implementing only one filter for now, you can think that this below line doesn't mak emuch sense
-          * because any attribute can be equal to one value at a time. so what's the purpose of storing the same filter
-          * again if there are.
-          * but it will be useful when we have more than one filter on the same attribute. Take the below condition
-          * for example:
-          * attr > 5 && attr < 10
-          * so for such cases, it's better to keep a list.
-          * you can add some more filters in this code and try them. Here, we are implementing only equalTo filter
-          * for understanding of this concept.
-          */
+         * as we are implementing only one filter for now, you can think that this below line doesn't mak emuch sense
+         * because any attribute can be equal to one value at a time. so what's the purpose of storing the same filter
+         * again if there are.
+         * but it will be useful when we have more than one filter on the same attribute. Take the below condition
+         * for example:
+         * attr > 5 && attr < 10
+         * so for such cases, it's better to keep a list.
+         * you can add some more filters in this code and try them. Here, we are implementing only equalTo filter
+         * for understanding of this concept.
+         */
         customFilters = customFilters ++ Map(attr -> {
           customFilters.getOrElse(attr, List[CustomFilter]()) :+ new CustomFilter(attr, value, "equalTo")
         })
