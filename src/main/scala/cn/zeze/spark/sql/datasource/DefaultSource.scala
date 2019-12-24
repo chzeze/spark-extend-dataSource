@@ -1,4 +1,4 @@
-package cn.zj.spark.sql.datasource
+package cn.zeze.spark.sql.datasource
 
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
@@ -6,8 +6,8 @@ import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, Re
 import org.apache.spark.sql.types.StructType
 
 /**
-  * Created by rana on 29/9/16.
-  */
+ * Created by: chenzz on 2019/12/24, 10:01.
+ */
 class DefaultSource extends RelationProvider with SchemaRelationProvider with CreatableRelationProvider {
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     createRelation(sqlContext, parameters, null)
@@ -43,19 +43,19 @@ class DefaultSource extends RelationProvider with SchemaRelationProvider with Cr
     createRelation(sqlContext, parameters, data.schema)
   }
 
-  private def saveAsJson(data : DataFrame, path : String, mode: SaveMode): Unit = {
+  private def saveAsJson(data: DataFrame, path: String, mode: SaveMode): Unit = {
     /**
-      * Here, I am using the dataframe's Api for storing it as json.
-      * you can have your own apis and ways for saving!!
-      */
+     * Here, I am using the dataframe's Api for storing it as json.
+     * you can have your own apis and ways for saving!!
+     */
     data.write.mode(mode).json(path)
   }
 
-  private def saveAsCustomFormat(data : DataFrame, path : String, mode: SaveMode): Unit = {
+  private def saveAsCustomFormat(data: DataFrame, path: String, mode: SaveMode): Unit = {
     /**
-      * Here, I am  going to save this as simple text file which has values separated by "|".
-      * But you can have your own way to store without any restriction.
-      */
+     * Here, I am  going to save this as simple text file which has values separated by "|".
+     * But you can have your own way to store without any restriction.
+     */
     val customFormatRDD = data.rdd.map(row => {
       row.toSeq.map(value => value.toString).mkString("|")
     })

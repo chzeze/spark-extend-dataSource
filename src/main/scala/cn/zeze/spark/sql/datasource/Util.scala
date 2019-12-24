@@ -1,4 +1,4 @@
-package cn.zj.spark.sql.datasource
+package cn.zeze.spark.sql.datasource
 
 import org.apache.spark.sql.types.{DataType, IntegerType, LongType, StringType}
 

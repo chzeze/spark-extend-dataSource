@@ -1,4 +1,4 @@
-package cn.zj.spark.sql.datasource
+package cn.zeze.spark.sql.datasource
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Row, SQLContext}
@@ -21,7 +21,7 @@ class CustomDatasourceRelation(override val sqlContext : SQLContext, path : Stri
         StructField("name", StringType, true) ::
         StructField("gender", StringType, true) ::
         StructField("salary", LongType, true) ::
-        StructField("expenses", LongType, true) :: Nil
+        StructField("expense", LongType, true) :: Nil
       )
     }
   }
