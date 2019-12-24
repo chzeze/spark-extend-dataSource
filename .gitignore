@@ -1,0 +1,6 @@
+.idea
+*.iml
+.svn
+target/
+logs/
+gen.*/
