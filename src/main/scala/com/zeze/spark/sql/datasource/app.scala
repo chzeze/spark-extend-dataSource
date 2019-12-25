@@ -1,39 +1,30 @@
 package com.zeze.spark.sql.datasource
 
+import com.zeze.spark.sql.datasource.core.SparkSessionManger
+import com.zeze.spark.sql.datasource.custom.CustomSQL
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.api.java.function.MapFunction
+import org.apache.spark.sql.{Encoders, Row}
+import org.slf4j.{Logger, LoggerFactory}
 
 /**
  * Created by: chenzz on 2019/12/24, 10:41.
  */
 object app extends App {
-  println("Application started...")
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
+  logger.info("Application started...")
 
   val conf = new SparkConf().setAppName("spark-custom-datasource")
-  val spark = SparkSession.builder().config(conf).master("local").getOrCreate()
-
-  val df = spark.sqlContext.read.format("com.zeze.spark.sql.datasource").load("data/")
-
-  //  print the schema
-  df.printSchema()
-
-  //print the data
-  df.show()
-
-  //save the data
-  df.write.options(Map("format" -> "customFormat")).mode(SaveMode.Overwrite).format("com.zeze.spark.sql.datasource").save("out_custom/")
-  df.write.options(Map("format" -> "json")).mode(SaveMode.Overwrite).format("com.zeze.spark.sql.datasource").save("out_json/")
-  df.write.mode(SaveMode.Overwrite).format("com.zeze.spark.sql.datasource").save("out_none/")
-
-  df.createOrReplaceTempView("test")
+  SparkSessionManger.buid(conf)
 
   //select some specific columns
-  //    spark.sql("select id, name, gender, salary from test where salary = 50000").show()
-  spark.sql("select * from test").show()
+  val sqlDF = CustomSQL.sql("select * from people where salary >= 50000")
+  logger.info(s"{}", sqlDF.show())
 
-  //filter data
-  //  spark.sql("select id, name, salary from test where salary = 50000").show()
-  //  spark.sql("select * from test where salary = 50000").show()
-
-  println("Application Ended...")
+  val resultDf = sqlDF.map(new MapFunction[Row, String] {
+    override def call(row: Row): String = row.mkString("\t")
+  }, Encoders.STRING).toDF("value")
+  //save the data to path
+  CustomSQL.export(resultDf, "out_put/")
+  logger.info("Application Ended...")
 }

@@ -1,5 +1,6 @@
-package com.zeze.spark.sql.datasource
+package com.zeze.spark.sql.datasource.custom
 
+import com.zeze.spark.sql.datasource.util.Util
 import org.apache.spark.sql.types.StructType
 
 /**
